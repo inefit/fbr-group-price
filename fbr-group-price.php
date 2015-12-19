@@ -90,10 +90,13 @@ function fbr_meta_group($post){
 	 * Use get_post_meta() to retrieve an existing value
 	 * from the database and use the value for the form.
 	 */
+	// Add a nonce field so we can check for it later.
+	wp_nonce_field( 'fbr_save_meta_box_data', 'fbr_meta_box_nonce' );
+
 	$value = get_post_meta( $post->ID, 'fbr_group_member', true );
 
 	$users = get_users();
-	echo '<select id="fbr_member_field" name="fbr_member_field" multiple="multiple">';
+	echo '<select id="fbr_member_field" name="fbr_member_field[]" multiple="multiple">';
 	foreach($users as $u){
 		echo '<option value="'.$u->ID.'">'.esc_html( $u->display_name ).'</option>';
 	}
@@ -102,11 +105,41 @@ function fbr_meta_group($post){
 	?>
 		<script type="text/javascript">
 			jQuery(document).ready(function($){
-				$('#fbr_member_field').select2({ placeholder: 'Select Member', width: '100%' });
+				<?php if(empty($value)) { ?>
+					$('#fbr_member_field').select2({ placeholder: 'Select Member', width: '100%' });
+				<?php } else { ?>
+					var selectedValues = new Array();
+					<?php
+					$val = explode(',',$value);
+					$i = 0;
+					foreach($val as $v){
+						echo 'selectedValues["'.$i.'"] = "'.$v.'";';
+						$i++;
+					}
+					?>
+					$('#fbr_member_field').val(selectedValues);
+					$('#fbr_member_field').select2({ placeholder: 'Select Member', width: '100%' , val : selectedValues }); 
+				<?php } ?>
 			});
 		</script>
 	<?php
 }
+
+/**
+ * When the post is saved, saves our custom data.
+ *
+ * @param int $post_id The ID of the post being saved.
+ */
+function fbr_save_meta_box_data( $post_id ) {
+
+	$data = implode(",",$_POST['fbr_member_field']);
+	// Sanitize user input.
+	$my_data = sanitize_text_field( $data );
+
+	// Update the meta field in the database.
+	update_post_meta( $post_id, 'fbr_group_member', $my_data );
+}
+add_action( 'save_post', 'fbr_save_meta_box_data' );
 
 function fbr_admin_head() {
 

@@ -68,3 +68,57 @@ function fbr_gpr_init() {
 */
 
 add_action( 'init', 'fbr_gpr_init', 0 );
+
+
+function fbr_add_metaboxes(){
+	$lists = array( 'gmember_price' );
+	foreach($lists as $list){
+		add_meta_box(
+			'fbr_meta_group',
+			__( 'Members', 'fbr-group' ),
+			'fbr_meta_group',
+			$list
+		);
+	}
+}
+
+add_action( 'add_meta_boxes' , 'fbr_add_metaboxes');
+
+
+function fbr_meta_group($post){
+	/*
+	 * Use get_post_meta() to retrieve an existing value
+	 * from the database and use the value for the form.
+	 */
+	$value = get_post_meta( $post->ID, 'fbr_group_member', true );
+
+	$users = get_users();
+	echo '<select id="fbr_member_field" name="fbr_member_field" multiple="multiple">';
+	foreach($users as $u){
+		echo '<option value="'.$u->ID.'">'.esc_html( $u->display_name ).'</option>';
+	}
+	echo '</select>';
+
+	?>
+		<script type="text/javascript">
+			jQuery(document).ready(function($){
+				$('#fbr_member_field').select2({ placeholder: 'Select Member', width: '100%' });
+			});
+		</script>
+	<?php
+}
+
+function fbr_admin_head() {
+
+	// Bring the post type global into scope
+	global $post_type;
+
+	// If the current post type doesn't match, return, ie. end execution here
+	if( 'gmember_price' != $post_type )
+		return;
+
+	//wp_enqueue_style('fbr-select2-style', plugin_dir_url( __FILE__ ).'assets/css/select2.css');
+    wp_enqueue_script( 'fbr-select2', plugin_dir_url( __FILE__ ).'assets/js/select2.js');
+}
+
+add_action( 'admin_head', 'fbr_admin_head' );

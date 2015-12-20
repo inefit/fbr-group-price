@@ -1,0 +1,31 @@
+#woocommerce-coupon-data ul.wc-tabs li.fbr-group-options a:before, 
+#woocommerce-product-data ul.wc-tabs li.fbr-group-options a:before, 
+.woocommerce ul.wc-tabs li.fbr-group-options a:before{
+	content:"\e002"
+}
+
+.fbr-p{
+	margin-left: 10px;
+	margin-top:10px;
+	display: block;
+}
+
+.fbr-width{
+	float:left;
+}
+
+.fbr-width-30{
+	width: 30%;
+	display: inline-block;
+}
+
+#txt_fbr_price{
+	width:90%;
+}
+
+#fbr_price_tab input, #fbr_price_tab select{
+}
+
+#btn_group_add{
+	float:left;
+}

@@ -132,6 +132,21 @@ function fbr_meta_group($post){
  */
 function fbr_save_meta_box_data( $post_id ) {
 
+	if ( isset( $_POST['post_type'] ) && 'gmember_price' == $_POST['post_type'] ) {
+
+		if ( ! current_user_can( 'edit_page', $post_id ) ) {
+			return;
+		}
+
+	}
+	else
+		return;
+
+	// Make sure that it is set.
+	if ( ! isset( $_POST['fbr_member_field'] ) ) {
+		return;
+	}
+
 	$data = implode(",",$_POST['fbr_member_field']);
 	// Sanitize user input.
 	$my_data = sanitize_text_field( $data );
@@ -147,11 +162,19 @@ function fbr_admin_head() {
 	global $post_type;
 
 	// If the current post type doesn't match, return, ie. end execution here
-	if( 'gmember_price' != $post_type )
-		return;
+	if( 'gmember_price' == $post_type  || 'product' == $post_type){
+		wp_enqueue_style('fbr-select2-style', plugin_dir_url( __FILE__ ).'assets/css/select2.css');
+    	wp_enqueue_script( 'fbr-select2', plugin_dir_url( __FILE__ ).'assets/js/select2.js');
 
-	//wp_enqueue_style('fbr-select2-style', plugin_dir_url( __FILE__ ).'assets/css/select2.css');
-    wp_enqueue_script( 'fbr-select2', plugin_dir_url( __FILE__ ).'assets/js/select2.js');
+    	wp_enqueue_style('fbr-style', plugin_dir_url( __FILE__ ).'assets/css/style.css');
+	}
+	else{
+		return;
+	}
+
+	
 }
 
 add_action( 'admin_head', 'fbr_admin_head' );
+
+include "product.php";
